@@ -1,0 +1,28 @@
+
+GET http://localhost:3000/tasks
+###
+
+GET http://localhost:3000/tasks/1
+###
+
+POST http://localhost:3000/tasks
+content-type: application/json
+
+{
+  "name": "Buy milk",
+  "description": "eslkajskdfjl",
+  "status": true
+}
+###
+
+PUT  http://localhost:3000/tasks/1
+content-type: application/json
+
+{
+  "status": false
+}
+###
+
+DELETE  http://localhost:3000/tasks/1
+content-type: application/json
+###
