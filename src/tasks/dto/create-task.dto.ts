@@ -1,18 +1,20 @@
 import { IsNotEmpty, IsString, IsBoolean } from 'class-validator';
-
-import { PartialType } from '@nestjs/mapped-types';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 
 export class CreateTaskDTO {
   @IsNotEmpty()
   @IsString()
+  @ApiProperty()
   readonly name: string;
 
   @IsNotEmpty()
   @IsString()
+  @ApiProperty()
   readonly description: string;
 
   @IsNotEmpty()
   @IsBoolean()
+  @ApiProperty()
   readonly status: boolean;
 }
 
