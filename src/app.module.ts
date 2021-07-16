@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { TaskModule } from './tasks/task.module';
 import { ConfigModule } from '@nestjs/config';
 import config from './config';
-import { DatabaseModule } from './database';
+import { DatabaseModule } from './database.module';
 import * as Joi from 'joi';
 @Module({
   imports: [
@@ -19,8 +19,8 @@ import * as Joi from 'joi';
         DB_PASS: Joi.string().required(),
       }),
     }),
-    TaskModule,
     DatabaseModule,
+    TaskModule,
   ],
   controllers: [AppController],
   providers: [AppService],
