@@ -28,39 +28,41 @@ export class TasksController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  findAll() {
-    console.log(this.configService.secretKey);
+  async findAll() {
     return {
       success: true,
-      tasks: this.taskService.findAll(),
+      tasks: await this.taskService.findAll(),
     };
   }
 
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Param('id', ParseIntPipe) id: number) {
     return {
       success: true,
-      tasks: this.taskService.findOne(id),
+      task: await this.taskService.findOne(id),
     };
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() data: CreateTaskDTO) {
+  async create(@Body() data: CreateTaskDTO) {
     return {
       success: true,
-      task: this.taskService.create(data),
+      task: await this.taskService.create(data),
       message: 'Task created successfully',
     };
   }
 
   @Put('/:id')
   @HttpCode(HttpStatus.OK)
-  update(@Param('id', ParseIntPipe) id: number, @Body() data: UpdateTaskDTO) {
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: UpdateTaskDTO,
+  ) {
     return {
       success: true,
-      task: this.taskService.update(id, data),
+      task: await this.taskService.update(id, data),
       message: 'Task updated successfully',
     };
   }

@@ -1,52 +1,80 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { Client } from 'pg';
 import { CreateTaskDTO, UpdateTaskDTO } from './dto/create-task.dto';
-import { TaskEntity } from './entities/task.entity';
 
 @Injectable()
 export class TaskService {
-  private tasks: TaskEntity[] = [];
+  constructor(@Inject('DB') private client: Client) {}
 
-  findAll(): TaskEntity[] {
-    return this.tasks;
+
+  findAll() {
+    return new Promise((resolve, reject) => {
+      this.client.query(`SELECT * FROM tasks`, (err, result) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(result.rows);
+      });
+    });
   }
 
-  findOne(id: number): TaskEntity {
-    const foundTask: TaskEntity = this.tasks.find((task) => task.id === id);
-    if (!foundTask) {
-      throw new NotFoundException(`Task with id: ${id} not found`);
-    }
-    return foundTask;
+  findOne(id: number) {
+    return new Promise((resolve, reject) => {
+      this.client.query(
+        `SELECT * FROM tasks WHERE id=$1`,
+        [id],
+        (err, result) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(result.rows[0]);
+        },
+      );
+    });
   }
 
-  create(data: CreateTaskDTO): TaskEntity {
-    const newTask: TaskEntity = {
-      id: this.tasks.length + 1,
-      ...data,
-    };
-    this.tasks.unshift(newTask);
-    return newTask;
+  create(data: CreateTaskDTO) {
+    return new Promise((resolve, reject) => {
+      this.client.query(
+        `INSERT INTO tasks (name, description) VALUES ($1, $2) RETURNING id`,
+        [data.name, data.description],
+        (err, result) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(result.rows[0]);
+        },
+      );
+    });
   }
 
-  update(taskId: number, data: UpdateTaskDTO): TaskEntity {
-    const foundTask: number = this.tasks.findIndex(
-      (task) => task.id === taskId,
-    );
-    if (foundTask === -1) {
-      throw new NotFoundException(`Task with id: ${taskId} not found`);
-    }
-    this.tasks[foundTask] = {
-      ...this.tasks[foundTask],
-      ...data,
-    };
-    return this.tasks[foundTask];
+  update(taskId: number, data: UpdateTaskDTO) {
+    return new Promise((resolve, reject) => {
+      this.client.query(
+        'UPDATE tasks SET name = $1, description = $2 WHERE id = $3',
+        [data.name, data.description, taskId],
+        (err, result) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(result.rows);
+        },
+      );
+    });
   }
 
-  remove(id: number): string {
-    const foundTask: number = this.tasks.findIndex((task) => task.id === id);
-    if (foundTask === -1) {
-      throw new NotFoundException(`Task with id: ${id} not found`);
-    }
-    this.tasks = this.tasks.filter((task) => task.id !== id);
-    return `delete: ${id}`;
+  remove(id: number) {
+    return new Promise((resolve, reject) => {
+      this.client.query(
+        'DELETE FROM tasks WHERE id = $1',
+        [id],
+        (err, result) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(result.rows[0]);
+        },
+      );
+    });
   }
 }
